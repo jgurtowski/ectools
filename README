@@ -1,0 +1,68 @@
+PB Correction and other PB tools
+
+Requires: BioPython
+
+PBTOOLS_HOME=/path/to/this/directory
+
+Running Correction.
+
+1. Create Celera Unitigs from Illumina (or other high identity) data
+   Output: organism.utg.fasta
+
+
+2. Create a new directory to house the correction
+   
+   $> mkdir organism_correct 
+
+3. Simlink your organism.utg.fasta into the correction dir
+
+   $> cd organism_correct
+   $> ln -s /path/to/organism.utg.fasta 
+
+3. Select only long Pacbio Reads 
+   Short (contained) reads tend to mess with the Celera unitigger
+   so we generally discard them even before correction.
+   Generally we only correct reads >3kb. Target coverage for good
+   assemblies tends to be ~20x with reads >3kb. If you don't have
+   that kind of coverage you can try with reads >1kb.  
+
+4. Partition pacbio reads into small batches
+
+   $> python ${PBTOOLS_HOME}/partition.py 20 500 pbreads.legnth_filtered.fa
+   Output: Series of directories and a ReadIndex.txt which
+   	   maps reads to partitions
+   *Note: You probably only want a few reads per file (20 is usually good)
+
+5. Copy correction script to working dir
+   
+   $> cp ${PBTOOLS_HOME}/correct.sh .
+
+6. Modify the global variables a the top of correct.sh
+
+7. Ensure Nucmer suite is in your PATH
+   
+   $> nucmer
+
+8. Launch Correction
+   The correct.sh script should be run in each of the partition directories. The number
+   of files in directory should be specified as the array parameter to grid engine.
+   This simple for loop works well:
+   
+   $> for i in {0001..000N}; do cd $i; qsub -cwd -t 1:${NUM_FILES_PER_PARTITION} ../correct.sh; cd ..; done
+   
+   Where N is the number of partitions (directories) and NUM_FILES_PER_PARTITION is the
+   number of files per partition specified in the partitions script (500 in this case)
+
+
+9. Concatenate all corrected output files from all parititons into a single fa file:
+   
+   $> cat ????/*.cor.fa > organism.cor.fa
+
+
+10. Run Celera on the output file.
+
+   *Notes: 
+   Use convert-fasta-to-v2.pl to convert the organism.cor.fa into the celera frg file.
+   Celera's default parameters work pretty well with corrected PB data.	    
+   Make sure you use OverlapBasedTrimming (it is on by default).
+   
