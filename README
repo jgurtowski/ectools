@@ -54,7 +54,8 @@ Running Correction.
    number of files per partition specified in the partitions script (500 in this case)
 
 
-9. Concatenate all corrected output files from all parititons into a single fa file:
+9. Wait for correction to complete.
+   Concatenate all corrected output files from all parititons into a single fa file:
    
    $> cat ????/*.cor.fa > organism.cor.fa
 
@@ -62,7 +63,7 @@ Running Correction.
 10. Run Celera on the output file.
 
    *Notes: 
-   Use convert-fasta-to-v2.pl to convert the organism.cor.fa into the celera frg file.
+   Use convert-fasta-to-v2.pl to make celera frg file from organism.cor.fa 
    Celera's default parameters work pretty well with corrected PB data.	    
    Make sure you use OverlapBasedTrimming (it is on by default).
    
