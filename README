@@ -30,10 +30,11 @@ Running Correction.
 
    $> python ${PBTOOLS_HOME}/partition.py 20 500 pbreads.legnth_filtered.fa 
    
-   Output: Series of directories and a
-
-   ReadIndex.txt which maps reads to partitions *Note: You probably
-   only want a few reads per file (20 is usually good)
+   Output: Series of directories and a ReadIndex.txt which maps 
+   reads to partitions 
+   
+   *Note: You probably only want a few reads 
+   per file (20 is usually good)
 
 5. Copy correction script to working dir
    
