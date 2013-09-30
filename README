@@ -70,8 +70,16 @@ Running Correction.
    Use convert-fasta-to-v2.pl to make celera frg file from
    organism.cor.fa 
 
+   example:
+   $> convert-fasta-to-v2.pl -l organism_pbcor -s organism.cor.fa \
+      -q <( python ${PBTOOLS_HOME}/qualgen.py organism.cor.fa) > organism.cor.frg
+   
+
+
    Celera's default parameters work pretty well with
    corrected PB data.  
 
    Make sure you use OverlapBasedTrimming (it is on by default).
    
+
+
