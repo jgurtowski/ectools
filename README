@@ -72,7 +72,8 @@ Running Correction.
 
    example:
    $> convert-fasta-to-v2.pl -l organism_pbcor -s organism.cor.fa \
-      -q <( python ${PBTOOLS_HOME}/qualgen.py organism.cor.fa) > organism.cor.frg
+      -q <( python ${PBTOOLS_HOME}/qualgen.py organism.cor.fa) \
+      > organism.cor.frg
    
 
 
