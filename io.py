@@ -34,4 +34,7 @@ def getNucmerAlignmentIterator(fh):
     '''
     return lineRecordIterator(fh, NucRecord, NucRecordTypes)
 
-
+def nucRecordToString(nuc_record):
+    fields = nuc_record._fields
+    return "\t".join(
+        imap( lambda x : str(getattr(nuc_record, x)), fields))

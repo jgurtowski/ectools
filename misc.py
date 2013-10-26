@@ -1,5 +1,6 @@
 
 import string
+from operator import concat
 
 #http://edwards.sdsu.edu/labsite/index.php/robs/396-reverse-complement-dna-sequences-in-python
 def reverse_complement(seq):
@@ -28,4 +29,7 @@ def first_idx(condition_func, iterable):
 def create_enum(**enums):
     return type('Enum', (), enums)
         
-    
+
+def append_str(s):
+    '''returns a function that appends s'''
+    return lambda x: concat(x,s)
