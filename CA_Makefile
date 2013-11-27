@@ -1,0 +1,72 @@
+
+BASENAME = a14
+GENOME_SIZE = 12000000
+
+SHELL = /bin/bash
+
+TIGLEN_BIN = /bluearc/data/schatz/mschatz/devel/bin/tig_length.pl 
+PBTOOLS_BIN = /bluearc/home/schatz/gurtowsk/workspace/pbtools
+
+JOIN_BIN = $(PBTOOLS_BIN)/join.py
+
+CA_BIN = /bluearc/home/schatz/gurtowsk/sources/wgs.svn/Linux-amd64/bin
+AMOS_BIN = /bluearc/home/schatz/gurtowsk/sources/amos/bin
+
+STATS_BIN = $(AMOS_BIN)/stats
+
+GATEKEP_BIN = $(CA_BIN)/gatekeeper
+TIGSTOR_BIN = $(CA_BIN)/tigStore 
+OVLSTOR_BIN = $(CA_BIN)/overlapStore
+
+GTKSTOR = $(BASENAME).gkpStore
+TIGSTOR = $(BASENAME).tigStore
+OVLSTOR = $(BASENAME).ovlStore
+
+.PHONY : all
+
+all : unitigs.layout.clean.names unitigs.layout.stats frg.utg.overlaps.sorted
+
+unitigs.layout :
+	$(TIGSTOR_BIN) -g $(GTKSTOR) -t $(TIGSTOR) 1 -U -d layout > unitigs.layout
+
+unitigs.layout.stats: unitigs.layout
+	$(TIGLEN_BIN) unitigs.layout  | $(STATS_BIN) -f 2 -n50 $(GENOME_SIZE) > unitigs.layout.stats
+
+ReadIndex.txt: 
+	$(GATEKEP_BIN) -dumpfragments $(GTKSTOR) | grep "fragmentIdent" | \
+	awk '{ split($$3,a,","); print a[2]"\t"a[1]}END{print "NONE\tNONE"}' > ReadIndex.txt
+
+unitigs.layout.clean: unitigs.layout ReadIndex.txt
+	cat unitigs.layout | \
+	awk '{if($$1=="FRG"){$$1=$$2=$$3=$$4=""; print $$0}else if($$1=="unitig"){print}}' | \
+	sed "s/^\s*//" | uniq  > unitigs.layout.clean
+
+unitigs.layout.clean.names: unitigs.layout.clean
+	python $(JOIN_BIN) ReadIndex.txt unitigs.layout.clean true > unitigs.layout.clean.names
+
+
+utg_frg.db: unitigs.layout.clean
+	cat unitigs.layout.clean  | \
+	awk '{ if($$1=="unitig"){p = $$2}else{print $$1"\t"p}}' > utg_frg.db
+
+frg.overlaps:
+	$(OVLSTOR_BIN) -d5 -d3 -d $(OVLSTOR) > frg.overlaps
+
+frg.utg.overlaps: frg.overlaps utg_frg.db
+	paste <(python $(JOIN_BIN) utg_frg.db <(awk '{print $$1}' frg.overlaps )) \
+	<(python $(JOIN_BIN) utg_frg.db <(awk '{print $$2}' frg.overlaps )) \
+	<( awk '{print $$1"-"$$2}' frg.overlaps) > frg.utg.overlaps
+
+frg.utg.overlaps.sorted: frg.utg.overlaps
+	sort -n -k 1,1 -k 2,2 frg.utg.overlaps > frg.utg.overlaps.sorted
+
+
+.PHONY : povl
+
+povl :
+	$(OVLSTOR_BIN) -p $(id) $(OVLSTOR) $(GTKSTOR) OBTCHIMERA
+
+
+clean:
+	rm -f unitigs.layout.clean.names unitigs.layout.clean \
+	unitigs.layout.stats ReadIndex.txt unitigs.layout 

@@ -114,6 +114,9 @@ for pbname, snp_entries in groupby(snp_it, lambda x: x.sname):
     warnings = []
     pblen = len(reads[pbname])
 
+    ##no alignments for this pb read
+    if pbname not in alignments:
+        continue
     ##create ranges of accepted alignments
     accept_alignment_ranges = [None] * pblen
     #alignments[pbname].sort(key=lambda a: (a.send-a.sstart) * pow(a.pctid/100.0,2))
