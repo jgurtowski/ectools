@@ -17,8 +17,11 @@ fh = open(sys.argv[1])
 
 for pbname, alignments in groupby(getNucmerAlignmentIterator(fh), attrgetter("sname")):
     al = list(alignments)
-    if len(al) < 2:
+
+    ##if all alignments are to the same unitig
+    if all(map(lambda x: x.qname == al[0].qname , al)):
         continue
+    
     for aln in al:
         if (aln.qstart > END_CUTOFF and aln.qstart < (aln.qlen-END_CUTOFF) 
             and aln.qend > END_CUTOFF and aln.qend < (aln.qlen-END_CUTOFF)):
