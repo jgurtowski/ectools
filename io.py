@@ -87,18 +87,31 @@ def getDeltaAlignmentIterator(fh):
         for i in line.strip().split():
             itembuf.append(i)
 
-def deltaRecordToOriginalFormat(dr):
-    final_str = None
 
+def deltaRecordHeaderToString(dr):
     a = map(lambda x : str(getattr(dr, x)), dr._fields[:-1])
     a[0] = ">"+a[0]
-    final_str = " ".join(a)
+    return " ".join(a)
+
+def deltaAlignmentHeaderToString(alignment):
+    a = map(lambda x : str(getattr(alignment,x)), 
+            alignment._fields[:-1])    
+    return " ".join(a)
+
+def deltaRecordToOriginalFormat(dr):
+
+    final_str = deltaRecordHeaderToString(dr)
+    
     for alignment in dr.alignments:
-        a = map(lambda x : str(getattr(alignment,x)), 
-                alignment._fields[:-1])
-        final_str += "\n" + " ".join(a)
+        final_str += "\n" + deltaAlignmentHeaderToString(alignment)
         p = "\n".join(map(str, alignment.positions))
         final_str += "\n"+p
         
     return final_str
     
+
+
+
+
+    
+
