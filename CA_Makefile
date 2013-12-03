@@ -1,8 +1,10 @@
 
-BASENAME = a14
-GENOME_SIZE = 12000000
+BASENAME = r2
+GENOME_SIZE = 120000000
 
 SHELL = /bin/bash
+
+CORRECTION_ROOT = /seq/schatz/a.thaliana/xiwang/james_workspace/nucmer-round2
 
 TIGLEN_BIN = /bluearc/data/schatz/mschatz/devel/bin/tig_length.pl 
 PBTOOLS_BIN = /bluearc/home/schatz/gurtowsk/workspace/pbtools
@@ -24,7 +26,7 @@ OVLSTOR = $(BASENAME).ovlStore
 
 .PHONY : all
 
-all : unitigs.layout.clean.names unitigs.layout.stats frg.utg.overlaps.sorted
+all : unitigs.layout.clean.names unitigs.layout.stats
 
 unitigs.layout :
 	$(TIGSTOR_BIN) -g $(GTKSTOR) -t $(TIGSTOR) 1 -U -d layout > unitigs.layout
@@ -66,6 +68,13 @@ frg.utg.overlaps.sorted: frg.utg.overlaps
 povl :
 	$(OVLSTOR_BIN) -p $(id) $(OVLSTOR) $(GTKSTOR) OBTCHIMERA
 
+
+.PHONY : getsc
+
+getsc:
+	rn=$$(echo $(read) | awk '{split($$1,a,"_corrected"); print a[1]}') ; \
+	idx=$$(grep "$$rn" $(CORRECTION_ROOT)/ReadIndex.txt | awk '{print $$2}'); \
+	grep "$$rn" $(CORRECTION_ROOT)/$${idx}.delta.pre.1.sc
 
 clean:
 	rm -f unitigs.layout.clean.names unitigs.layout.clean \
