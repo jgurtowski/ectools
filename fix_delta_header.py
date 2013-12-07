@@ -3,6 +3,13 @@
 import sys
 import os
 
+###
+#Delta files have the path to the alignment reference in their header
+#This is a pain if the file gets moved.
+#This script just replaces that header with the cwd and assumes the 
+#reference is in cwd
+###
+
 
 ###
 #Assume ref is now in the cwd
