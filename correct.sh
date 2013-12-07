@@ -9,10 +9,10 @@ source ~/.bashrc
 ##SET THE FOLLOWING PARAMETERS
 
 #path to correct script in pbtools repo
-CORRECT_SCRIPT=/path/to/ectools/pb_correct.py
+CORRECT_SCRIPT=/bluearc/home/schatz/gurtowsk/workspace/ectools/pb_correct.py
 
 #pre filter delta file
-PRE_DELTA_FILTER_SCRIPT=/path/to/ectools/pre_delta_filter.py
+PRE_DELTA_FILTER_SCRIPT=/bluearc/home/schatz/gurtowsk/workspace/ectools/pre_delta_filter.py
 
 #smallest alignment allowed, filter out alignments smaller than this
 MIN_ALIGNMENT_LEN=200
@@ -25,10 +25,10 @@ WIGGLE_PCT=0.05
 CONTAINED_PCT_ID=0.80
 
 #path to high identity unitigs
-UNITIG_FILE=/path/to/short-read.utg.fa
+UNITIG_FILE=/seq/schatz/a.thaliana/xiwang/james_workspace/nucmer-round-sim/misim.utg.g10frg.fa
 
 #Trim out regions with lower identity than
-CLR_PCT_ID=0.99
+CLR_PCT_ID=0.96
 
 #Minimum read length to output after splitting/trimming
 MIN_READ_LEN=3000
@@ -40,7 +40,7 @@ FILE=p${suffix}
 
 ORIGINAL_DIR=`pwd`
 
-#Move to sge temp storage
+Move to sge temp storage
 if [[ $TMPDIR ]]
 then
     cd $TMPDIR
@@ -48,7 +48,7 @@ fi
 
 cp ${ORIGINAL_DIR}/${FILE} .
 
-nucmer --maxmatch -l 11 -b 10000 -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
+nucmer --maxmatch -l 11 -b 2000 -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
 
 cp ${FILE}.delta ${ORIGINAL_DIR}
 
@@ -57,19 +57,19 @@ python ${PRE_DELTA_FILTER_SCRIPT} ${FILE}.delta ${WIGGLE_PCT} ${CONTAINED_PCT_ID
 cp ${FILE}.delta.pre ${ORIGINAL_DIR}
 cp ${FILE}.delta.pre.log ${ORIGINAL_DIR}
 
-delta-filter -l $MIN_ALIGNMENT_LEN -i 70.0 -1 ${FILE}.delta.pre > ${FILE}.delta.pre.1
+delta-filter -l $MIN_ALIGNMENT_LEN -i 70.0 -r ${FILE}.delta.pre > ${FILE}.delta.pre.r
 
-cp ${FILE}.delta.pre.1 ${ORIGINAL_DIR}
+cp ${FILE}.delta.pre.r ${ORIGINAL_DIR}
 
-show-coords -l -H -r ${FILE}.delta.pre.1 > ${FILE}.delta.pre.1.sc
+show-coords -l -H -r ${FILE}.delta.pre.r > ${FILE}.delta.pre.r.sc
 
-cp ${FILE}.delta.pre.1.sc ${ORIGINAL_DIR}
+cp ${FILE}.delta.pre.r.sc ${ORIGINAL_DIR}
 
-show-snps -H -l -r ${FILE}.delta.pre.1 > ${FILE}.snps
+show-snps -H -l -r ${FILE}.delta.pre.r > ${FILE}.snps
 
 cp ${FILE}.snps ${ORIGINAL_DIR}
 
-python ${CORRECT_SCRIPT} ${FILE} ${FILE}.snps ${FILE}.delta.pre.1.sc ${CLR_PCT_ID} ${MIN_READ_LEN} ${FILE}
+python ${CORRECT_SCRIPT} ${FILE} ${FILE}.snps ${FILE}.delta.pre.r.sc ${CLR_PCT_ID} ${MIN_READ_LEN} ${FILE}
 
 cp ${FILE}.cor.fa ${ORIGINAL_DIR}
 cp ${FILE}.cor.pileup ${ORIGINAL_DIR}

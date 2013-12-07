@@ -1,7 +1,5 @@
 PB Correction and other PB tools
 
-Requires: BioPython
-
 PBTOOLS_HOME=/path/to/this/directory
 
 Running Correction.

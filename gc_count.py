@@ -3,7 +3,7 @@
 import sys
 import operator
 
-from Bio import SeqIO
+from seqio import fastaIterator
 from itertools import groupby,izip,imap
 
 from io import NucRecord, NucRecordTypes, getNucmerAlignmentIterator
@@ -25,7 +25,7 @@ ofh = open(sys.argv[3]+".uncov.gc.bases","w")
 
 reads = {}
 
-for entry in SeqIO.parse(rfh, "fasta"):
+for entry in fastaIterator(rfh):
     reads[str(entry.name)] = str(entry.seq)
 sys.stderr.write("Loaded reads\n")
 

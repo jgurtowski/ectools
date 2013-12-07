@@ -65,12 +65,12 @@ for record in getDeltaAlignmentIterator(fh):
             efh.write(deltaAlignmentHeaderToString(alnmt)+ "\n")
             
     #0 or 1 alignments, good to go! Otherwise idk
+    #just log them and output them anyway
     if len(pfalignments) > 1:
         efh.write("Multiple Alignments\n")
         efh.write(deltaRecordHeaderToString(record) + "\n")
         for a in pfalignments:
             efh.write(deltaAlignmentHeaderToString(a)+ "\n")
-        pfalignments = []
 
     #substitute old alignments with filtered ones
     record.alignments[:] = [] 

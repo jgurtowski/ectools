@@ -2,7 +2,7 @@
 
 import sys
 
-from Bio import SeqIO
+from seqio import fastaIterator
 
 if not len(sys.argv) == 2:
     print "qualgen.py read.fa"
@@ -11,6 +11,6 @@ if not len(sys.argv) == 2:
 reads = sys.argv[1]
 
 with open(reads) as rfh:
-    for record in SeqIO.parse(rfh,"fasta"):
+    for record in fastaIterator(rfh):
         print ">"+str(record.name)
         print " ".join(["60"]*len(record.seq))

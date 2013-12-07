@@ -5,7 +5,7 @@
 import sys
 
 from collections import namedtuple
-from Bio import SeqIO
+from seqio import fastaIterator
 from itertools import dropwhile,count,repeat
 import misc
 import random
@@ -34,7 +34,7 @@ rout = open(sys.argv[4]+".sim.fa", "w")
 
 
 #read genome into mem
-chromosomes = map(lambda r: Chromosome._make((str(r.name),str(r.seq))), SeqIO.parse(gfh, "fasta"))
+chromosomes = map(lambda r: Chromosome._make((str(r.name),str(r.seq))), fastaIterator(gfh))
 chrom_lengths = map(lambda c: len(c.seq), chromosomes)
 genome_length = sum(chrom_lengths)
 chrom_lengths_ivtf = map(misc.accumulator(0), map(lambda x: float(x)/genome_length , chrom_lengths))

@@ -4,7 +4,7 @@ import sys
 
 from io import *
 
-from Bio import SeqIO
+from seqio import fastaIterator
 
 from operator import itemgetter
 from itertools import groupby, repeat, izip_longest, imap, count, chain
@@ -106,7 +106,7 @@ alignment_it = lineRecordIterator(afh, NucRecord, NucRecordTypes)
 snp_it = lineRecordIterator(sfh, NucSNPRecord, NucSNPRecordTypes)
 
 
-reads = dict(map(lambda r : (str(r.name), str(r.seq)), SeqIO.parse(rfh, "fasta")))
+reads = dict(map(lambda r : (str(r.name), str(r.seq)), fastaIterator(rfh)))
 alignments = dict(map(lambda (n,a): (n,list(a)), 
                       groupby(alignment_it, lambda x: x.sname)))
 
