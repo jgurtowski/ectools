@@ -57,6 +57,10 @@ def correct_base(pentry):
     if len(filt_snps) > 1:
         #better all be insertions
         if all(map(lambda p: p.sbase == '.', filt_snps)):
+            #show-snps is strange, on reverse alignments
+            #it outputs indels in the forward direction
+            if ssnp.r2 == -1:
+                filt_snps.reverse() 
             return (pentry.base+"".join(map(lambda f: f.qbase,filt_snps)), None, pentry.clr)
         else:
             #not everything is an insertion, add the insertions and
