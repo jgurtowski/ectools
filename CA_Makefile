@@ -1,5 +1,5 @@
 
-BASENAME = simcor
+BASENAME = simsga
 GENOME_SIZE = 120000000
 
 SHELL = /bin/bash
@@ -76,7 +76,7 @@ povl :
 getsc:
 	rn=$$(echo $(read) | awk '{split($$1,a,"_corrected"); print a[1]}') ; \
 	idx=$$(grep "$$rn" $(CORRECTION_ROOT)/ReadIndex.txt | awk '{print $$2}'); \
-	grep "$$rn" $(CORRECTION_ROOT)/$${idx}.delta.pre.1.sc
+	grep "$$rn" $(CORRECTION_ROOT)/$${idx}.delta.pre.r.sc
 
 
 .PHONY : getrawsc
