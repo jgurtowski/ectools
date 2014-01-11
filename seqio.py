@@ -25,6 +25,9 @@ def fastaIterator(fh):
             seq += l.strip()
     
 
+def fastaRecordToString(record):
+    return "\n".join([">"+record.name,record.seq])
+
 
 def fastqIterator(fh):
     l = fh.readline()
@@ -42,4 +45,6 @@ def fastqIterator(fh):
         name = l.strip()[1:]
 
 
+def fastqRecordToString(record):
+    return "\n".join(["@"+record.name, record.seq, "+"+record.desc, record.qual])
 
