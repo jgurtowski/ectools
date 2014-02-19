@@ -1,5 +1,8 @@
 PB Correction and other PB tools
 
+Background information for the algorithm can be found:
+http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf
+
 PBTOOLS_HOME=/path/to/this/directory
 
 Running Correction.
