@@ -1,7 +1,7 @@
 Long Read Correction and other Correction tools
 
 This package is a loose collection of scripts. To run the correction
-routine, see the section below. Descriptions of the other scripts
+routine see the section below. Descriptions of the other scripts
 are at the bottom of this file.
 
 ###
@@ -94,7 +94,7 @@ ECTOOLS_HOME=/path/to/this/directory
 
 
 ###
-#Descriptions
+#Script Descriptions
 ###
 
 @@ simulate_reads.py @@
