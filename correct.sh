@@ -33,6 +33,16 @@ CLR_PCT_ID=0.96
 #Minimum read length to output after splitting/trimming
 MIN_READ_LEN=3000
 
+##Filter the delta file for proper overlaps before doing LIS in delta-filter
+#
+#Depending on the quality of the data, you may want to ensure
+#that only proper overlapping alignments are used for correction.
+#If the initial short read assembly is very good (ex. 100kb contig N50)
+#you probably want to ensure proper overlaps.
+#If the initial assembly is not very contiguous, requiring
+#proper overlaps may hinder correction.
+PRE_DELTA_FILTER=true;
+
 ###Done parameters
 
 suffix=`printf "%04d" $SGE_TASK_ID`
@@ -48,28 +58,32 @@ fi
 
 cp ${ORIGINAL_DIR}/${FILE} .
 
-nucmer --maxmatch -l 11 -b 10000 -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
+nucmer --maxmatch -l 11 -b 3000 -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
 
 cp ${FILE}.delta ${ORIGINAL_DIR}
 
-python ${PRE_DELTA_FILTER_SCRIPT} ${FILE}.delta ${WIGGLE_PCT} ${CONTAINED_PCT_ID} ${MIN_ALIGNMENT_LEN} ${FILE}.delta.pre
+FILTERED_DELTA=${FILE}.delta
+if [[ "$PRE_DELTA_FILTER" == true ]]
+then
+    FILTERED_DELTA=${FILE}.delta.pre
+    python ${PRE_DELTA_FILTER_SCRIPT} ${FILE}.delta ${WIGGLE_PCT} ${CONTAINED_PCT_ID} ${MIN_ALIGNMENT_LEN} ${FILTERED_DELTA}
+    cp ${FILTERED_DELTA} ${ORIGINAL_DIR}
+    cp ${FILTERED_DELTA}.log ${ORIGINAL_DIR}
+fi
 
-cp ${FILE}.delta.pre ${ORIGINAL_DIR}
-cp ${FILE}.delta.pre.log ${ORIGINAL_DIR}
+delta-filter -l $MIN_ALIGNMENT_LEN -i 70.0 -r ${FILTERED_DELTA} > ${FILTERED_DELTA}.r
 
-delta-filter -l $MIN_ALIGNMENT_LEN -i 70.0 -r ${FILE}.delta.pre > ${FILE}.delta.pre.r
+cp ${FILTERED_DELTA}.r ${ORIGINAL_DIR}
 
-cp ${FILE}.delta.pre.r ${ORIGINAL_DIR}
+show-coords -l -H -r ${FILTERED_DELTA}.r > ${FILTERED_DELTA}.r.sc
 
-show-coords -l -H -r ${FILE}.delta.pre.r > ${FILE}.delta.pre.r.sc
+cp ${FILTERED_DELTA}.r.sc ${ORIGINAL_DIR}
 
-cp ${FILE}.delta.pre.r.sc ${ORIGINAL_DIR}
+show-snps -H -l -r ${FILTERED_DELTA}.r > ${FILTERED_DELTA}.snps
 
-show-snps -H -l -r ${FILE}.delta.pre.r > ${FILE}.snps
+cp ${FILTERED_DELTA}.snps ${ORIGINAL_DIR}
 
-cp ${FILE}.snps ${ORIGINAL_DIR}
-
-python ${CORRECT_SCRIPT} ${FILE} ${FILE}.snps ${FILE}.delta.pre.r.sc ${CLR_PCT_ID} ${MIN_READ_LEN} ${FILE}
+python ${CORRECT_SCRIPT} ${FILE} ${FILTERED_DELTA}.snps ${FILTERED_DELTA}.r.sc ${CLR_PCT_ID} ${MIN_READ_LEN} ${FILE}
 
 cp ${FILE}.cor.fa ${ORIGINAL_DIR}
 cp ${FILE}.cor.pileup ${ORIGINAL_DIR}

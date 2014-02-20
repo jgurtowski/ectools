@@ -28,7 +28,7 @@ for line in infh:
         if ignore:
             print line.strip()
         continue
-    print "\t".join(db[key]+arr[1:])
+    print "\t".join([arr[0]]+db[key]+arr[1:])
 
 infh.close()
 dbfh.close()

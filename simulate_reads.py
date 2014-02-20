@@ -21,7 +21,7 @@ def mismatch(pos,seq):
             
 #read.lens is just a file with a list of read lengths
 if not len(sys.argv) == 5:
-    print "pb_sim.py genome.fa read.lens error_rate out_prefix"
+    print "simulate_reads.py genome.fa read.lens error_rate out_prefix"
     sys.exit(1)
 
 

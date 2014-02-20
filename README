@@ -1,11 +1,21 @@
-PB Correction and other PB tools
+Long Read Correction and other Correction tools
 
-Background information for the algorithm can be found:
+This package is a loose collection of scripts. To run the correction
+routine, see the section below. Descriptions of the other scripts
+are at the bottom of this file.
+
+###
+#Correction
+###
+
+In short, the correction algorithm takes as input the unitigs from a short
+read assembly and uses them to correct long read data.
+More background information for the algorithm can be found:
 http://schatzlab.cshl.edu/presentations/2013-06-18.PBUserMeeting.pdf
 
-PBTOOLS_HOME=/path/to/this/directory
-
 Running Correction.
+
+ECTOOLS_HOME=/path/to/this/directory
 
 1. Create Celera Unitigs from Illumina (or other high identity) data
    
@@ -21,15 +31,13 @@ Running Correction.
    $> cd organism_correct 
    $> ln -s /path/to/organism.utg.fasta
 
-3. Select only long Pacbio Reads Short (contained) reads tend to mess
-   with the Celera unitigger so we generally discard them even before
-   correction.  Generally we only correct reads >3kb. Target coverage
-   for good assemblies tends to be ~20x with reads >3kb. If you don't
-   have that kind of coverage you can try with reads >1kb.
+3. Generally we only correct reads greater than 1kb. Filter out shorter
+   reads if possible. If you have it, 20-30x of raw long read coverage
+   is preferred so that you have ~20x remaining after correction.
 
 4. Partition pacbio reads into small batches
 
-   $> python ${PBTOOLS_HOME}/partition.py 20 500 pbreads.legnth_filtered.fa 
+   $> python ${ECTOOLS_HOME}/partition.py 20 500 pbreads.legnth_filtered.fa 
    
    Output: Series of directories and a ReadIndex.txt which maps 
    reads to partitions 
@@ -39,7 +47,7 @@ Running Correction.
 
 5. Copy correction script to working dir
    
-   $> cp ${PBTOOLS_HOME}/correct.sh .
+   $> cp ${ECTOOLS_HOME}/correct.sh .
 
 6. Modify the global variables a the top of correct.sh
 
@@ -52,7 +60,7 @@ Running Correction.
    be specified as the array parameter to grid engine.  This simple
    for loop works well:
    
-   $> for i in {0001..000N}; do cd $i; qsub -cwd -t 1:${NUM_FILES_PER_PARTITION} ../correct.sh; cd ..; done
+   $> for i in {0001..000N}; do cd $i; qsub -cwd -j y -t 1:${NUM_FILES_PER_PARTITION} ../correct.sh; cd ..; done
    
    Where N is the number of partitions (directories) and
    NUM_FILES_PER_PARTITION is the number of files per partition
@@ -73,15 +81,54 @@ Running Correction.
 
    example:
    $> convert-fasta-to-v2.pl -l organism_pbcor -s organism.cor.fa \
-      -q <( python ${PBTOOLS_HOME}/qualgen.py organism.cor.fa) \
+      -q <( python ${ECTOOLS_HOME}/qualgen.py organism.cor.fa) \
       > organism.cor.frg
    
 
-
    Celera's default parameters work pretty well with
-   corrected PB data.  
+   corrected PB data, you can also drop the utgGraphErrorRate to 0.01.  
 
    Make sure you use OverlapBasedTrimming (it is on by default).
    
 
+
+
+###
+#Descriptions
+###
+
+@@ simulate_reads.py @@
+Simple read simulator. Takes a genome and a file of line
+separated read lengths. A read is produced for each given read
+length at the specified error rate.
+
+@@ gccontent.py @@
+Builds an ascii graph of gc content for each item in a fasta file
+
+@@ io.py @@
+Has various parsers for parsing delta files
+
+@@ join.py @@
+general purpose script to do database like join on flat file.
+
+@@ group_by.py @@
+general purpose script for grouping sorted line oriented data
+by a column.
+
+@@ filter.py @@
+general purpose script for filtering line separated data.
+Takes a database and uses it to filter the query file.
+
+@@ gc_count.py @@
+summarizes gc content from a set of alignments
+
+@@ fix_delta_header.py @@
+Because the correct.sh writes all output to a temporary directory in
+SGE and the copies it back to the original working directory, delta
+files will have the header of the temporary directory. This script
+just fixes the header so that downstream mummer tools work after
+the pipeline has completed. 
+
+
+                   
 
