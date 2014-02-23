@@ -89,6 +89,7 @@ for seqfile in seqfiles:
 
 ##print out stats for all files combined
 if len(seqfiles) > 1:
+    log("Calculating stats for all input files")
     stats = calcStats(all_file_lengths)
 
     outfile = "all.schtats"
