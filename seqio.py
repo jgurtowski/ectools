@@ -6,6 +6,10 @@ FastaRecord = namedtuple('FastaRecord', ['name','seq'])
 FastqRecord = namedtuple('FastqRecord', ['name','seq','desc','qual'])
 
 
+def seqlen(record):
+    '''Gets the sequence length for a seqio record'''
+    return len(record.seq)
+
 def fastaIterator(fh):
 
     l = fh.readline()
@@ -48,3 +52,15 @@ def fastqIterator(fh):
 def fastqRecordToString(record):
     return "\n".join(["@"+record.name, record.seq, "+"+record.desc, record.qual])
 
+
+def iteratorFromExtension(filename):
+    '''
+    Get a sequence file iterator 
+    Based on the file's extension
+    '''
+    ext = filename.split(".")[-1]
+    if ext in ["fasta", "fa"]:
+        return fastaIterator
+    elif ext in ["fastq", "fq", "txt"]:
+        return fastqIterator
+    raise Exception, "Unknown file extension %s for file %s", (ext,filename)

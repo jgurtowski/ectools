@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+
+import sys
+import os
+
+from collections import namedtuple
+
+from operator import attrgetter
+
+from seqio import iteratorFromExtension, seqlen
+from stats import getBasicStats, extendedStatsToString, ExtendedStats
+from stats import NStar, LBig
+from args import parseArgs, getHelpStr, argrange, argflag, CLArgument
+from log import logger
+    
+#parameters
+description = ("Usage: schtats [options] file1.{fa,fq} [file2.{fa,fq} ..]\n\n"
+               "Calculate length statistics on a set of sequencing files")
+
+argument_list = (["genome", "gnm", int, None,"(Optional) Genome Size for calculating n50 (int)"],
+                 ["big", "big", argrange, [],("(Optional) increments for calculating stats. "
+                                              "Can be a range start:end:increment or comma "
+                                              "separated list")],
+                 ["nstar", "nstar", argrange, [10,25,50,75,90],("(Optional) calculate N* (ie N50,N75,N90 etc. "
+                                                                "Can be a range start:end:increment or comma "
+                                                                "separated list. Default: [10,25,50,75,90]")],
+                 ["stdin", "stdin", argflag, False, ("(Optional) read lengths from stdin rather "
+                                                    "than from files")],
+                 ["log", "log", argflag, False, ("(Optional) print some logging info")])
+
+arguments = map(CLArgument._make, argument_list)
+
+if not len(sys.argv) > 1:
+    sys.exit(getHelpStr(description,arguments) + "\n")
+
+(p_arg_map, args_remaining) = parseArgs(sys.argv[1:], arguments)
+
+log = logger(sys.stderr if p_arg_map["log"] else None)
+
+#simple seqfile struct with name of file, seq iterator and filehandle
+SeqFile = namedtuple('SeqFile', ['name','seqit'])
+
+if not len(args_remaining) >= 1:
+    sys.exit(getHelpStr(description,arguments) + "\n")
+
+file_names = args_remaining
+#get a reader for each file
+seqfiles = map(SeqFile._make, 
+               zip(file_names, 
+                   map(iteratorFromExtension,file_names)))
+
+genome_size = p_arg_map["gnm"]
+
+
+def calcStats(lengths):
+    
+    lengths.sort(reverse=True)
+
+    basic = getBasicStats(lengths, genome_size)
+    
+    nstar = map(lambda x: x(lengths),
+                NStar(p_arg_map["nstar"],
+                      p_arg_map["gnm"] if p_arg_map["gnm"] else sum(lengths)))
+        
+    #get bigs
+    bigs =  map(lambda x: x(lengths),
+                LBig(p_arg_map["big"], genome_size))
+
+    return ExtendedStats(basic,nstar,bigs)
+
+
+all_file_lengths = []
+for seqfile in seqfiles:
+    with open(seqfile.name) as fh:
+        log("Reading %s" % seqfile.name)
+        reader = seqfile.seqit(fh)
+        lengths = map(seqlen, reader)
+
+        log("Calculating Stats for %s" % seqfile.name)
+        stats = calcStats(lengths)
+
+        outfile = seqfile.name + ".schtats"
+        with open(outfile, "w") as of:
+            of.write(extendedStatsToString(stats))
+            of.write("\n")
+
+        if len(seqfiles) > 1:
+            all_file_lengths += lengths
+
+##print out stats for all files combined
+if len(seqfiles) > 1:
+    stats = calcStats(all_file_lengths)
+
+    outfile = "all.schtats"
+    inc = 0
+    while os.path.exists(outfile):
+        inc += 1
+        outfile = "all_%d.schtats" % inc
+
+    with open(outfile, "w") as of:
+        of.write("Files:\n%s\n\n" % "\n".join(map(attrgetter("name"),seqfiles)))
+        of.write(extendedStatsToString(stats))
+        of.write("\n")
+

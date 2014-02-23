@@ -97,6 +97,10 @@ ECTOOLS_HOME=/path/to/this/directory
 #Script Descriptions
 ###
 
+@@ schtats @@
+Calculates read length statistics for sequence files.
+
+
 @@ simulate_reads.py @@
 Simple read simulator. Takes a genome and a file of line
 separated read lengths. A read is produced for each given read
