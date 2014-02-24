@@ -8,7 +8,8 @@ BasicStats = namedtuple('BasicStats', ["n","min","max",
                                   "mean","stdev",
                                   "sum","cov"])
 
-NStarType = namedtuple('NStar', ['star','count','length'])
+NStarType = namedtuple('NStar', ['star','count',
+                                 'length'])
 
 BigIncrement = namedtuple('BigIncrement', ['increment',
                                            'count',
@@ -18,7 +19,8 @@ BigIncrement = namedtuple('BigIncrement', ['increment',
 ##types in this tuple are above
 ExtendedStats = namedtuple('ExtendedStats', ['basic',
                                              'nstar',
-                                             'bigs'])
+                                             'bigs',
+                                             'genome_size'])
 
 
 def NStar(increments, genome_size):
@@ -120,8 +122,12 @@ def bigsToString(bigs):
                        
 def extendedStatsToString(stats):
     ''' stats should be of type 'Stats' '''
+    fmt_strs = []
     
-    fmt_strs = map( lambda func, data : func(data),
+    if stats.genome_size:
+        fmt_strs += ["Assumed Genome Size: %d " % stats.genome_size]
+    
+    fmt_strs += map( lambda func, data : func(data),
                     [basicStatsToString, nstarsToString, bigsToString],
                     [stats.basic, stats.nstar, stats.bigs])
     

@@ -66,7 +66,7 @@ def calcStats(lengths):
     bigs =  map(lambda x: x(lengths),
                 LBig(p_arg_map["big"], genome_size))
 
-    return ExtendedStats(basic,nstar,bigs)
+    return ExtendedStats(basic,nstar,bigs,genome_size)
 
 
 all_file_lengths = []
@@ -98,8 +98,8 @@ if len(seqfiles) > 1:
         inc += 1
         outfile = "all_%d.schtats" % inc
 
+    log("Writing stats for all input files to %s" % outfile)
     with open(outfile, "w") as of:
         of.write("Files:\n%s\n\n" % "\n".join(map(attrgetter("name"),seqfiles)))
         of.write(extendedStatsToString(stats))
         of.write("\n")
-
