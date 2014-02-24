@@ -26,7 +26,9 @@ argument_list = (["genome", "gnm", int, None,"(Optional) Genome Size for calcula
                                                                 "separated list. Default: [10,25,50,75,90]")],
                  ["stdin", "stdin", argflag, False, ("(Optional) read lengths from stdin rather "
                                                     "than from files")],
-                 ["log", "log", argflag, False, ("(Optional) print some logging info")])
+                 ["log", "log", argflag, False, ("(Optional) print some logging info")],
+                 ["noall", "noall", argflag, False, ("(Optional) Do not output stats for all input files")],
+                 ["pall", "pall", str, "all", ("(Optional) Prefix for 'all' output. Default: all.schtats")])
 
 arguments = map(CLArgument._make, argument_list)
 
@@ -88,15 +90,16 @@ for seqfile in seqfiles:
             all_file_lengths += lengths
 
 ##print out stats for all files combined
-if len(seqfiles) > 1:
+if len(seqfiles) > 1 and not p_arg_map["noall"]:
     log("Calculating stats for all input files")
     stats = calcStats(all_file_lengths)
 
-    outfile = "all.schtats"
+    pall = p_arg_map["pall"]
+    outfile = pall + ".schtats"
     inc = 0
     while os.path.exists(outfile):
         inc += 1
-        outfile = "all_%d.schtats" % inc
+        outfile = "%s_%d.schtats" % (pall,inc)
 
     log("Writing stats for all input files to %s" % outfile)
     with open(outfile, "w") as of:

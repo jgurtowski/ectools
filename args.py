@@ -99,9 +99,8 @@ def argrange(a):
     elif "," in a:
         arr = map(int,a.split(","))
         return arr
-    raise Exception, ("range formats must be either start:stop:step "
-                      "or comma separated")
-
+    
+    return [int(a)]
 
 def argflag():
     pass
