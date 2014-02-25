@@ -32,8 +32,9 @@ for record in fastaIterator(fa_fh):
         current_file ="%s/p%s" % (pstr(dnum),pstr(fnum))
         fh = open(current_file, "w") 
 
-    readidx_fh.write(str(record.name) +"\t" + current_file + "\n")
-    fh.write(">"+str(record.name)+"\n")
+    clean_name = str(record.name).split()[0]
+    readidx_fh.write(clean_name +"\t" + current_file + "\n")
+    fh.write(">"+clean_name+"\n")
     fh.write(str(record.seq)+"\n")
 
     total_reads += 1
