@@ -27,9 +27,12 @@ argument_list = (["genome", "gnm", int, None,"(Optional) Genome Size for calcula
                  ["stdin", "stdin", argflag, False, ("(Optional) read lengths from stdin rather "
                                                     "than from files")],
                  ["log", "log", argflag, False, ("(Optional) print some logging info")],
-                 ["noall", "noall", argflag, False, ("(Optional) Do not output stats for all input files")],
-                 ["pall", "pall", str, "all", ("(Optional) Prefix for 'all' output. Default: all.schtats")])
+                 ["noall", "noall", argflag, False, ("(Optional) Do not output stats for 'all' input files")],
+                 ["pall", "pall", str, "all", ("(Optional) Prefix for 'all' output. "
+                                               "Note: will not overwrite existing 'all' file, instead appends "
+                                               "'_{i}.schtats' to -pall. Default: all.schtats")])
 
+#create argument datastructure from the list
 arguments = map(CLArgument._make, argument_list)
 
 if not len(sys.argv) > 1:
