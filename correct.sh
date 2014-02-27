@@ -33,6 +33,11 @@ CLR_PCT_ID=0.96
 #Minimum read length to output after splitting/trimming
 MIN_READ_LEN=3000
 
+#Number of bases without a match after which nucmer breaks the alignment.
+#Increase for better alignments but at the cost of dramatically
+#increased runtime 
+NUCMER_BREAK_LEN=2000
+
 ##Filter the delta file for proper overlaps before doing LIS in delta-filter
 #
 #Depending on the quality of the data, you may want to ensure
@@ -41,7 +46,7 @@ MIN_READ_LEN=3000
 #you probably want to ensure proper overlaps.
 #If the initial assembly is not very contiguous, requiring
 #proper overlaps may hinder correction.
-PRE_DELTA_FILTER=true;
+PRE_DELTA_FILTER=true
 
 ###Done parameters
 
@@ -58,7 +63,7 @@ fi
 
 cp ${ORIGINAL_DIR}/${FILE} .
 
-nucmer --maxmatch -l 11 -b 3000 -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
+nucmer --maxmatch -l 11 -b ${NUCMER_BREAK_LEN} -g 1000 -p ${FILE} ${FILE} ${UNITIG_FILE}
 
 cp ${FILE}.delta ${ORIGINAL_DIR}
 
