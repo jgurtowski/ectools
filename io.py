@@ -36,12 +36,26 @@ def lineRecordIterator(fh, nt, nt_types):
             imap(lambda (t,e): t(e) ,izip(nt_types, x.strip().split()))
             ),fh)
 
+def lineItemIterator(fh):
+    '''Takes a file handle and returns a list of the split line'''
+    return imap(lambda x: x.split(), fh)
 
 def getNucmerAlignmentIterator(fh):
     '''Get nucmer alignments from show-coords output
     (Deprecated legacy)
     '''
     return lineRecordIterator(fh, NucRecord, NucRecordTypes)
+
+
+def fileIterator(filename, itemIterator):
+    '''Handles the life cyle of a file,
+       The itemIterator will be passed the 
+       opened file handle
+    '''
+    with open(filename) as fh:
+        for item in itemIterator(fh):
+            yield item
+
 
 def nucRecordToString(nuc_record):
     fields = nuc_record._fields
@@ -111,6 +125,31 @@ def deltaRecordToOriginalFormat(dr):
     
 
 
+class FileOrStream:
+    '''Opens a File or a Stream from a String'''
+
+    _streams = {"stdin": sys.stdin,
+                 "stdout":sys.stdout,
+                 "stderr":sys.stderr}
+
+    def __init__(self, s, *args ):
+        '''s is a string representation of what you 
+        want to open, could be file or string'''
+
+        self.s = s
+        self.eargs = args
+        self.isStream = False
+
+    def __enter__(self):
+        if self.s in FileOrStream._streams:
+            self.isStream = True
+            return FileOrStream._streams[self.s]
+        self.fh = open(self.s, *self.eargs)
+        return self.fh
+    
+    def __exit__(self, ttype ,value, traceback):
+        if not self.isStream:
+            self.fh.close()
 
 
     

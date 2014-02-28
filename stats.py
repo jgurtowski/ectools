@@ -1,8 +1,10 @@
 
 from itertools import imap
 from collections import namedtuple
-from operator import add
-from math import sqrt
+from operator import add, attrgetter
+from math import sqrt, ceil
+from string import ljust
+from strutil import strAppend
 
 BasicStats = namedtuple('BasicStats', ["n","min","max",
                                   "mean","stdev",
@@ -16,10 +18,14 @@ BigIncrement = namedtuple('BigIncrement', ['increment',
                                            'bases',
                                            'coverage'])
 
+HistBin = namedtuple('HistBin', ['bin',
+                                 'count'])
+
 ##types in this tuple are above
 ExtendedStats = namedtuple('ExtendedStats', ['basic',
                                              'nstar',
                                              'bigs',
+                                             'hist',
                                              'genome_size'])
 
 
@@ -69,6 +75,17 @@ def LBig(length_increments,genome_size=None):
     return map(_LBig, length_increments)
 
 
+def Hist(increments, bin_size):
+    
+    def _Hist(inc):
+        def _H(lens):
+            cond = lambda x: x >= inc and x < inc+bin_size
+            return HistBin(inc,len(filter(cond, lens)))
+        return _H
+    
+    return map(_Hist, increments)
+
+
 def getBasicStats(lengths, genome_size = None):
     '''get stats from a list of lengths
     NOTE: lengths must be sorted in reverse
@@ -93,7 +110,7 @@ def getBasicStats(lengths, genome_size = None):
 def basicStatsToString(basic_stats):
     '''Basic stats to string'''
     
-    s = "2 : n={n} [{min}, {max}] {mean:.2f} +/- {stdev:.2f} sum={sum}"
+    s = "n={n} [{min}, {max}] {mean:.2f} +/- {stdev:.2f} sum={sum}"
     fmtstr = s.format(**dict(basic_stats._asdict()))
 
     if basic_stats.cov:
@@ -119,6 +136,26 @@ def bigsToString(bigs):
         return s.format(**d)
     
     return "\n".join(map( bigformat, bigs))
+
+
+def histToVertString(bins):
+    '''List of 'HistBin's'''
+    if not bool(bins):
+        return ""
+
+    N_COLS = 80
+    mcount = max(bins, key=attrgetter("count")).count
+    mcslen = len(str(mcount))
+    mbslen = len(str(max(bins, key=attrgetter("bin")).bin))
+    
+    def format(bin):
+        stars = "*" * int(ceil((bin.count / float(mcount)) * N_COLS))
+        binstr = ljust(str(bin.bin), mbslen)
+        cntstr = ljust(str(bin.count), mcslen)
+        return " : ".join([binstr,cntstr,stars])
+
+    return "\n".join(map(format,bins))
+
                        
 def extendedStatsToString(stats):
     ''' stats should be of type 'Stats' '''
@@ -128,8 +165,8 @@ def extendedStatsToString(stats):
         fmt_strs += ["Assumed Genome Size: %d " % stats.genome_size]
     
     fmt_strs += map( lambda func, data : func(data),
-                    [basicStatsToString, nstarsToString, bigsToString],
-                    [stats.basic, stats.nstar, stats.bigs])
+                    [basicStatsToString, nstarsToString, histToVertString, bigsToString],
+                    [stats.basic, stats.nstar, stats.hist, stats.bigs])
     
     #remove any empty ones
     fmt_strs = filter(bool, fmt_strs)

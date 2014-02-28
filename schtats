@@ -5,30 +5,40 @@ import os
 
 from collections import namedtuple
 
-from operator import attrgetter
+from operator import attrgetter, itemgetter
+
+from itertools import imap, repeat
 
 from seqio import iteratorFromExtension, seqlen
+from io import fileIterator, lineItemIterator, FileOrStream
+from misc import iterApply
 from stats import getBasicStats, extendedStatsToString, ExtendedStats
-from stats import NStar, LBig
+from stats import NStar, LBig, Hist
 from args import parseArgs, getHelpStr, argrange, argflag, CLArgument
 from log import logger
+from strutil import strAppend
     
 #parameters
 description = ("Usage: schtats [options] file1.{fa,fq} [file2.{fa,fq} ..]\n\n"
                "Calculate length statistics on a set of sequencing files")
 
-argument_list = (["genome", "gnm", int, None,"(Optional) Genome Size for calculating n50 (int)"],
-                 ["big", "big", argrange, [],("(Optional) increments for calculating stats. "
+argument_list = (["genome", "gnm", int, None,"Genome Size for calculating n50 (int)"],
+                 ["big", "big", argrange, [],("Increments for calculating stats. "
                                               "Can be a range start:end:increment or comma "
                                               "separated list")],
-                 ["nstar", "nstar", argrange, [10,25,50,75,90],("(Optional) calculate N* (ie N50,N75,N90 etc. "
+                 ["hist", "hist", argrange, [],("Bins for calculating histogram. "
+                                                "Must be range, start:end:increment ")],
+                 ["nstar", "nstar", argrange, [10,25,50,75,90],("Calculate N* (ie N50,N75,N90 etc. "
                                                                 "Can be a range start:end:increment or comma "
                                                                 "separated list. Default: [10,25,50,75,90]")],
-                 ["stdin", "stdin", argflag, False, ("(Optional) read lengths from stdin rather "
-                                                    "than from files")],
-                 ["log", "log", argflag, False, ("(Optional) print some logging info")],
-                 ["noall", "noall", argflag, False, ("(Optional) Do not output stats for 'all' input files")],
-                 ["pall", "pall", str, "all", ("(Optional) Prefix for 'all' output. "
+                 ["stdin", "stdin", int, None, ("Read lengths from stdin rather "
+                                                "than from files, argument is the column from which to read "
+                                                "the lengths. O based. Ex. -stdin 1, for 2nd column of input")],
+                 ["stdout","stdout",argflag, False, "Send all output to stdout"], 
+                 ["allonly","allonly", argflag, False, ("Only output 'all' file, not individual files")],
+                 ["log", "log", argflag, False, ("Print some logging info")],
+                 ["noall", "noall", argflag, False, ("Do not output stats for 'all' input files")],
+                 ["pall", "pall", str, "all", ("Prefix for 'all' output. "
                                                "Note: will not overwrite existing 'all' file, instead appends "
                                                "'_{i}.schtats' to -pall. Default: all.schtats")])
 
@@ -43,19 +53,39 @@ if not len(sys.argv) > 1:
 log = logger(sys.stderr if p_arg_map["log"] else None)
 
 #simple seqfile struct with name of file, seq iterator and filehandle
-SeqFile = namedtuple('SeqFile', ['name','seqit'])
+SeqFile = namedtuple('SeqFile', ['name','lenit', 'outfile'])
 
-if not len(args_remaining) >= 1:
+if not len(args_remaining) >= 1 and not p_arg_map["stdin"]:
     sys.exit(getHelpStr(description,arguments) + "\n")
 
 file_names = args_remaining
-#get a reader for each file
-seqfiles = map(SeqFile._make, 
-               zip(file_names, 
-                   map(iteratorFromExtension,file_names)))
+
+#get a length iterator for each seq file
+lenits =  map(lambda it: iterApply(seqlen, it),
+              map(lambda fn, it: fileIterator(fn,it), 
+                  file_names,
+                  map(iteratorFromExtension,file_names)))
+
+#build output files
+if p_arg_map["stdout"]:
+    ofnames = repeat("stdout",len(file_names))
+else:
+    ofnames = imap(strAppend(".schtats"), file_names)
+
+outfiles = map(lambda n : FileOrStream(n,"w"), ofnames)
+
+#build the seqfiles
+seqfiles = map(SeqFile._make,
+               zip(file_names,lenits,outfiles))
+
+if p_arg_map["stdin"]:
+    field = p_arg_map["stdin"]
+    seqfiles.append(SeqFile('stdin',
+                            imap(int,imap(itemgetter(field),
+                                          lineItemIterator(sys.stdin))),
+                            "stdout"))
 
 genome_size = p_arg_map["gnm"]
-
 
 def calcStats(lengths):
     
@@ -71,26 +101,27 @@ def calcStats(lengths):
     bigs =  map(lambda x: x(lengths),
                 LBig(p_arg_map["big"], genome_size))
 
-    return ExtendedStats(basic,nstar,bigs,genome_size)
-
+    #get hist
+    bins = p_arg_map["hist"]
+    binsize = bins[1] - bins[0] if len(bins) > 1 else 0
+    hist = map(lambda x : x(lengths),
+               Hist(p_arg_map["hist"], binsize))
+    
+    return ExtendedStats(basic,nstar,bigs,hist,genome_size)
 
 all_file_lengths = []
 for seqfile in seqfiles:
-    with open(seqfile.name) as fh:
-        log("Reading %s" % seqfile.name)
-        reader = seqfile.seqit(fh)
-        lengths = map(seqlen, reader)
-
+    log("Reading %s" % seqfile.name)
+    lengths = list(seqfile.lenit)
+    
+    if not p_arg_map["allonly"]:
         log("Calculating Stats for %s" % seqfile.name)
-        stats = calcStats(lengths)
-
-        outfile = seqfile.name + ".schtats"
-        with open(outfile, "w") as of:
+        stats = calcStats(lengths)    
+        with seqfile.outfile as of:
             of.write(extendedStatsToString(stats))
             of.write("\n")
-
-        if len(seqfiles) > 1:
-            all_file_lengths += lengths
+            
+    all_file_lengths += lengths
 
 ##print out stats for all files combined
 if len(seqfiles) > 1 and not p_arg_map["noall"]:

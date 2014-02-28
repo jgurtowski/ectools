@@ -33,3 +33,14 @@ def create_enum(**enums):
 def append_str(s):
     '''returns a function that appends s'''
     return lambda x: concat(x,s)
+
+
+def iterApply(func, iterable):
+    '''Takes a function and applies that function
+        to each iterable in the form of a generator
+    '''
+    for i in iterable:
+        yield func(i)
+
+
+

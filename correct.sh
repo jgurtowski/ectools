@@ -15,6 +15,7 @@ CORRECT_SCRIPT=/path/to/ectools/pb_correct.py
 PRE_DELTA_FILTER_SCRIPT=/path/to/ectools/pre_delta_filter.py
 
 #smallest alignment allowed, filter out alignments smaller than this
+#set this a few bp short of the short-read length
 MIN_ALIGNMENT_LEN=200
 
 #Allow % from the ends of the fragments to be wiggle room 
@@ -36,6 +37,7 @@ MIN_READ_LEN=3000
 #Number of bases without a match after which nucmer breaks the alignment.
 #Increase for better alignments but at the cost of dramatically
 #increased runtime 
+#Small genomes (10's of MB) can up this to 10000
 NUCMER_BREAK_LEN=2000
 
 ##Filter the delta file for proper overlaps before doing LIS in delta-filter
@@ -46,6 +48,7 @@ NUCMER_BREAK_LEN=2000
 #you probably want to ensure proper overlaps.
 #If the initial assembly is not very contiguous, requiring
 #proper overlaps may hinder correction.
+#'true' setting is most useful for short genomes with high coverage.
 PRE_DELTA_FILTER=true
 
 ###Done parameters
