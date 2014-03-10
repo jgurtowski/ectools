@@ -1,8 +1,8 @@
 import sys
 
 from collections import namedtuple
-from itertools import imap, izip
-
+from itertools import imap, izip, ifilter
+from misc import trueFunc
 
 NucRecord = namedtuple('NucRecord',
                        ["sstart","send","b3","qstart","qend",
@@ -28,13 +28,14 @@ DeltaRecord = namedtuple('DeltaRecord',
                          ["sname", "qname", "slen", "qlen", "alignments"])
 DeltaRecordTypes = [str, str, int, int, list]
 
-def lineRecordIterator(fh, nt, nt_types):
+def lineRecordIterator(fh, nt, nt_types, filter_func=trueFunc, delim=None):
     '''Create an iterator with given file handle (fh)
     as well as named tuple type (nt)
     and the column types (nt_types)'''
     return imap(lambda x: nt._make(
-            imap(lambda (t,e): t(e) ,izip(nt_types, x.strip().split()))
-            ),fh)
+            imap(lambda (t,e): t(e) ,
+                 izip(nt_types, x.strip().split(delim)))),
+                ifilter(filter_func,fh))
 
 def lineItemIterator(fh):
     '''Takes a file handle and returns a list of the split line'''
@@ -47,12 +48,12 @@ def getNucmerAlignmentIterator(fh):
     return lineRecordIterator(fh, NucRecord, NucRecordTypes)
 
 
-def fileIterator(filename, itemIterator):
+def fileIterator(filename, itemIterator, open_func=open):
     '''Handles the life cyle of a file,
        The itemIterator will be passed the 
        opened file handle
     '''
-    with open(filename) as fh:
+    with open_func(filename) as fh:
         for item in itemIterator(fh):
             yield item
 

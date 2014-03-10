@@ -125,7 +125,7 @@ for seqfile in seqfiles:
 
 ##print out stats for all files combined
 if len(seqfiles) > 1 and not p_arg_map["noall"]:
-    log("Calculating stats for all input files")
+    log("Calculating Stats for all input files")
     stats = calcStats(all_file_lengths)
 
     pall = p_arg_map["pall"]

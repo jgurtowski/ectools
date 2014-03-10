@@ -1,12 +1,11 @@
 
+from misc import passFunc
+
 
 def logger(output_fh):
     
-    def dnull(x):
-        pass
-    
     if not output_fh:
-        return dnull
+        return passFunc
 
     def _log(msg):
         '''Logs to output_fh'''

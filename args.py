@@ -16,7 +16,8 @@ CLArgument = namedtuple("CLArgument", ["name",
 
 def parseArgs(cllist, arg_proto, arg_proto_map={}, argmap = {}):
     '''Parse args from commandline
-       Usually takes sys.argv[1:]
+    Usually takes sys.argv[1:] as cllist
+    arg_proto is a list of type CLArgument
     '''
 
     def etoi(a):
@@ -101,6 +102,12 @@ def argrange(a):
         return arr
     
     return [int(a)]
+
+def arglist(a):
+    delim = None
+    if "," in a:
+        delim = ","
+    return a.split(delim)
 
 def argflag():
     pass

@@ -1,6 +1,7 @@
 
 import string
 from operator import concat
+from itertools import takewhile
 
 #http://edwards.sdsu.edu/labsite/index.php/robs/396-reverse-complement-dna-sequences-in-python
 def reverse_complement(seq):
@@ -42,5 +43,29 @@ def iterApply(func, iterable):
     for i in iterable:
         yield func(i)
 
+def trueFunc(*args, **kwords):
+    return True
+
+def passFunc(*args, **kwords):
+    pass
+
+def takeFirstWhile(predicate, stopfunc, iterable):
+    '''Takes first stretch of items where predicate
+    is true
+    
+    stopfunc terminates the function if predicate will
+    never be true
+    '''
+
+    it = iter(iterable)
+    g = False
+    for x in iter(iterable):
+        if predicate(x):
+            g = True
+            break
+        if stopfunc(x):
+            break
+    a = [] if not g else [x]
+    return a + list(takewhile(predicate,it))
 
 

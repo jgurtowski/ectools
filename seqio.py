@@ -29,6 +29,11 @@ def fastaIterator(fh):
             seq += l.strip()
     
 
+def recordToString(record):
+    f = fastqRecordToString if "desc" in record._fields else fastaRecordToString
+    return f(record)
+
+
 def fastaRecordToString(record):
     return "\n".join([">"+record.name,record.seq])
 
@@ -63,4 +68,4 @@ def iteratorFromExtension(filename):
         return fastaIterator
     elif ext in ["fastq", "fq", "txt"]:
         return fastqIterator
-    raise Exception, "Unknown file extension %s for file %s", (ext,filename)
+    raise Exception, "Unknown file extension %s for file %s" % (ext,filename)
