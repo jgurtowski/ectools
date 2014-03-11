@@ -2,20 +2,37 @@
 
 import sys
 import os
-from seqio import iteratorFromExtension
+from itertools import starmap, chain
 
-if not len(sys.argv) == 4:
-    print "partition.py <reads_per_file (int)> <files_per_dir (int)> <input.{fa,fq}>"
-    sys.exit(1)
+from seqio import iteratorFromExtension, recordToString, fastaRecordToString
+from io import fileIterator
+from args import parseArgs, getHelpStr, argflag, CLArgument
+
+description = ("Usage: partition.py [-options] "
+               "<reads_per_file (int)> <files_per_dir (int)> <input.{fa,fq}> [input2.{fa,fq} ...]")
+
+argument_list = [["sameformat", "samefmt", argflag, False,
+                  ("Output files will be in the same format "
+                   "as the input files. By default they are converted "
+                   "to fasta.")]]
+arguments = map(CLArgument._make, argument_list)
+
+if not len(sys.argv) > 1:
+    sys.exit(getHelpStr(description,arguments) + "\n")
+
+(p_arg_map, args_remaining) = parseArgs(sys.argv[1:], arguments)
+
+if not len(args_remaining) >= 3:
+    sys.exit(getHelpStr(description,arguments) + "\n")
 
 def pstr(num):
     return "%04d" % num
 
-rpf = int(sys.argv[1])
-fpd = int(sys.argv[2])
-in_fn = sys.argv[3]
-seqIt = iteratorFromExtension(in_fn)
-fa_fh = open(sys.argv[3])
+(rpf,fpd) = map(int,args_remaining[:2])
+
+in_files = args_remaining[2:]
+input_data = chain.from_iterable(starmap(fileIterator,
+                                         zip(in_files, map(iteratorFromExtension, in_files))))
 
 total_reads = 0
 dnum = 0
@@ -23,7 +40,9 @@ fnum = 0
 fh = None
 readidx_fh = open("ReadIndex.txt", "w")
 
-for record in seqIt(fa_fh):
+recordString = recordToString if p_arg_map["samefmt"] else fastaRecordToString
+
+for record in input_data:
     if total_reads % rpf == 0:
         if total_reads % (rpf * fpd) == 0:
             dnum += 1
@@ -36,12 +55,14 @@ for record in seqIt(fa_fh):
         fh = open(current_file, "w") 
 
     clean_name = str(record.name).split()[0]
+    clean_record = record._replace(name=clean_name)
     readidx_fh.write(clean_name +"\t" + current_file + "\n")
-    fh.write(">"+clean_name+"\n")
-    fh.write(str(record.seq)+"\n")
+    
+    fh.write(recordString(clean_record))
+    fh.write("\n")
 
     total_reads += 1
 
 readidx_fh.close()
 fh.close()
-fa_fh.close()
+

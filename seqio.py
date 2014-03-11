@@ -30,7 +30,7 @@ def fastaIterator(fh):
     
 
 def recordToString(record):
-    f = fastqRecordToString if "desc" in record._fields else fastaRecordToString
+    f = fastqRecordToString if hasattr(record,"desc") else fastaRecordToString
     return f(record)
 
 
