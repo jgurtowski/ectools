@@ -83,7 +83,7 @@ if p_arg_map["stdin"]:
     seqfiles.append(SeqFile('stdin',
                             imap(int,imap(itemgetter(field),
                                           lineItemIterator(sys.stdin))),
-                            "stdout"))
+                            FileOrStream("stdout")))
 
 genome_size = p_arg_map["gnm"]
 
@@ -124,6 +124,7 @@ for seqfile in seqfiles:
     all_file_lengths += lengths
 
 ##print out stats for all files combined
+
 if len(seqfiles) > 1 and not p_arg_map["noall"]:
     log("Calculating Stats for all input files")
     stats = calcStats(all_file_lengths)
