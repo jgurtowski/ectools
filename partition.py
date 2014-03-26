@@ -2,11 +2,13 @@
 
 import sys
 import os
-from itertools import starmap, chain
+from itertools import starmap, chain, imap
+from operator import itemgetter
 
 from seqio import iteratorFromExtension, recordToString, fastaRecordToString, seqlen
-from nucio import fileIterator
+from nucio import fileIterator, openerFromExtension
 from args import parseArgs, getHelpStr, argflag, CLArgument
+from misc import defdef
 
 description = ("Usage: partition.py [-options] "
                "<reads_per_file (int)> <files_per_dir (int)> <input.{fa,fq}> [input2.{fa,fq} ...]")
@@ -35,9 +37,13 @@ def pstr(num):
 (rpf,fpd) = map(int,args_remaining[:2])
 
 in_files = args_remaining[2:]
-input_data = chain.from_iterable(starmap(fileIterator,
-                                         zip(in_files, map(iteratorFromExtension, in_files))))
 
+openers = map(openerFromExtension,in_files)
+iterators = map(iteratorFromExtension, imap(itemgetter(1), openers))
+openfuncs = map(defdef(open), imap(itemgetter(0),openers))
+
+input_data = chain.from_iterable(starmap(fileIterator,
+                                         zip(in_files, iterators, openfuncs)))
 total_reads = 0
 dnum = 0
 fnum = 0

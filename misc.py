@@ -5,7 +5,7 @@ from itertools import takewhile
 
 #http://edwards.sdsu.edu/labsite/index.php/robs/396-reverse-complement-dna-sequences-in-python
 def reverse_complement(seq):
-    complements = string.maketrans('acgtACGTN', 'tgcaTGCAN')
+    complements = string.maketrans('acgtACGTNn', 'tgcaTGCANn')
     return seq.translate(complements)[::-1]
 
 def accumulator(start_total):
@@ -67,5 +67,15 @@ def takeFirstWhile(predicate, stopfunc, iterable):
             break
     a = [] if not g else [x]
     return a + list(takewhile(predicate,it))
+
+
+def defdef(default):
+    ''' Defined or Default
+    Returns a function that checks if its parameter is defined
+    If defined it returns the value otherwise it sets it to the 
+    default value
+    '''
+    return lambda x: x if bool(x) else default
+
 
 

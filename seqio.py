@@ -69,3 +69,11 @@ def iteratorFromExtension(filename):
     elif ext in ["fastq", "fq", "txt"]:
         return fastqIterator
     raise Exception, "Unknown file extension %s for file %s" % (ext,filename)
+
+
+
+
+    
+
+
+
