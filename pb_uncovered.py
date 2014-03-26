@@ -3,7 +3,7 @@
 import sys
 from itertools import groupby,ifilter,izip_longest,count
 
-from io import getNucmerAlignmentIterator
+from nucio import getNucmerAlignmentIterator
 from cov import fillc, getMarkedRanges, getCoverageFromNucAlignments
 
 if not len(sys.argv) == 4:

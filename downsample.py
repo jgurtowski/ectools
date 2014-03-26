@@ -3,7 +3,7 @@
 #Downsample a library
 import sys
 
-from io import typeify, fileIterator
+from nucio import typeify, fileIterator
 from seqio import iteratorFromExtension, recordToString, seqlen
 
 

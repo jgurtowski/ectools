@@ -5,8 +5,8 @@ import sys
 from collections import namedtuple
 from math import fabs
 
-from io import getDeltaAlignmentIterator, deltaRecordToOriginalFormat
-from io import deltaRecordHeaderToString, deltaAlignmentHeaderToString
+from nucio import getDeltaAlignmentIterator, deltaRecordToOriginalFormat
+from nucio import deltaRecordHeaderToString, deltaAlignmentHeaderToString
 
 if not len(sys.argv) == 6:
     sys.exit("pre_delta_filter.py in.delta wiggle_pct contained_pct min_alignment_size out_file")

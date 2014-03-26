@@ -6,7 +6,7 @@ import operator
 from seqio import fastaIterator
 from itertools import groupby,izip,imap
 
-from io import NucRecord, NucRecordTypes, getNucmerAlignmentIterator
+from nucio import NucRecord, NucRecordTypes, getNucmerAlignmentIterator
 from cov import fillc, getMarkedRanges, getCoverageFromNucAlignments
 from gccontent import getGCSlidingWindow
 

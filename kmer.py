@@ -5,7 +5,7 @@ import sys
 from itertools import imap
 
 from seqio import iteratorFromExtension
-from io import fileIterator
+from nucio import fileIterator
 
 
 ##Create Kmers

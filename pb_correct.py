@@ -2,7 +2,7 @@
 
 import sys
 
-from io import *
+from nucio import *
 
 from seqio import fastaIterator
 

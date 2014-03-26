@@ -1,0 +1,1 @@
+gatekeeper -dumpfragments y4.gkpStore | grep Ident | awk '{split($3,a,","); printf "1%011d\t",a[2]; print a[2]"\t"a[1]}'

@@ -10,7 +10,7 @@ from operator import attrgetter, itemgetter
 from itertools import imap, repeat
 
 from seqio import iteratorFromExtension, seqlen
-from io import fileIterator, lineItemIterator, FileOrStream
+from nucio import fileIterator, lineItemIterator, FileOrStream
 from misc import iterApply
 from stats import getBasicStats, extendedStatsToString, ExtendedStats
 from stats import NStar, LBig, Hist

@@ -4,7 +4,7 @@ import sys
 
 from itertools import groupby
 
-from io import getNucmerAlignmentIterator
+from nucio import getNucmerAlignmentIterator
 from operator import attrgetter
 
 

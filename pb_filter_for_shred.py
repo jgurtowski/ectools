@@ -11,7 +11,7 @@
 #marks which pb reads should be kept
 
 import sys
-from io import getNucmerAlignmentIterator, nucRecordToString
+from nucio import getNucmerAlignmentIterator, nucRecordToString
 
 from itertools import groupby, imap, izip, starmap
 from operator import attrgetter, eq

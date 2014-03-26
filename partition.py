@@ -4,8 +4,8 @@ import sys
 import os
 from itertools import starmap, chain
 
-from seqio import iteratorFromExtension, recordToString, fastaRecordToString
-from io import fileIterator
+from seqio import iteratorFromExtension, recordToString, fastaRecordToString, seqlen
+from nucio import fileIterator
 from args import parseArgs, getHelpStr, argflag, CLArgument
 
 description = ("Usage: partition.py [-options] "
@@ -14,7 +14,11 @@ description = ("Usage: partition.py [-options] "
 argument_list = [["sameformat", "samefmt", argflag, False,
                   ("Output files will be in the same format "
                    "as the input files. By default they are converted "
-                   "to fasta.")]]
+                   "to fasta.")],
+                 ["minlen", "minlen", int, 1,
+                  ("Only output reads that are greater than or equal to 'minlen' "
+                   "Default: 1")]]
+
 arguments = map(CLArgument._make, argument_list)
 
 if not len(sys.argv) > 1:
@@ -43,6 +47,10 @@ readidx_fh = open("ReadIndex.txt", "w")
 recordString = recordToString if p_arg_map["samefmt"] else fastaRecordToString
 
 for record in input_data:
+
+    if seqlen(record) < p_arg_map["minlen"]:
+        continue
+
     if total_reads % rpf == 0:
         if total_reads % (rpf * fpd) == 0:
             dnum += 1

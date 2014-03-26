@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from io import getNucmerAlignmentIterator, nucRecordToString
+from nucio import getNucmerAlignmentIterator, nucRecordToString
 from itertools import groupby
 from operator import attrgetter
 
