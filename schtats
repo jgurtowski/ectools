@@ -31,7 +31,7 @@ argument_list = (["genome", "gnm", int, None,"Genome Size for calculating n50 (i
                  ["nstar", "nstar", argrange, [10,25,50,75,90],("Calculate N* (ie N50,N75,N90 etc. "
                                                                 "Can be a range start:end:increment or comma "
                                                                 "separated list. Default: [10,25,50,75,90]")],
-                 ["stdin", "stdin", int, None, ("Read lengths from stdin rather "
+                 ["stdin", "stdin", int, -1, ("Read lengths from stdin rather "
                                                 "than from files, argument is the column from which to read "
                                                 "the lengths. O based. Ex. -stdin 1, for 2nd column of input")],
                  ["stdout","stdout",argflag, False, "Send all output to stdout"], 
@@ -55,7 +55,7 @@ log = logger(sys.stderr if p_arg_map["log"] else None)
 #simple seqfile struct with name of file, seq iterator and filehandle
 SeqFile = namedtuple('SeqFile', ['name','lenit', 'outfile'])
 
-if not len(args_remaining) >= 1 and not p_arg_map["stdin"]:
+if not len(args_remaining) >= 1 and not p_arg_map["stdin"] >=0:
     sys.exit(getHelpStr(description,arguments) + "\n")
 
 file_names = args_remaining
@@ -78,7 +78,7 @@ outfiles = map(lambda n : FileOrStream(n,"w"), ofnames)
 seqfiles = map(SeqFile._make,
                zip(file_names,lenits,outfiles))
 
-if p_arg_map["stdin"]:
+if p_arg_map["stdin"] >= 0:
     field = p_arg_map["stdin"]
     seqfiles.append(SeqFile('stdin',
                             imap(int,imap(itemgetter(field),
