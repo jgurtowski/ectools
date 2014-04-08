@@ -35,14 +35,26 @@ M4Record = namedtuple('M4Record',
 M4RecordTypes = [str, str, float, float, int, int, int, int, int, int,int,int,int]
 
 
-def lineRecordIterator(fh, nt, nt_types, filter_func=trueFunc, delim=None):
+def lineRecordIterator(fh, nt, nt_types, filter_func=trueFunc, delim=None, cleaner_func=None):
     '''Create an iterator with given file handle (fh)
     as well as named tuple type (nt)
-    and the column types (nt_types)'''
-    return imap(lambda x: nt._make(
-            imap(lambda (t,e): t(e) ,
-                 izip(nt_types, x.strip().split(delim)))),
-                ifilter(filter_func,fh))
+    and the column types (nt_types)
+
+    filter_func filters lines before they are split, return True to keep the line
+    cleaner_func takes a line and returns a list, default just splits on delim,
+                 returned list must match the number of fields in the nt
+
+    '''
+
+    if cleaner_func == None:
+        cleaner_func = lambda line : line.strip().split(delim) 
+    
+    filtered_lines = ifilter(filter_func, fh)
+    split_clean_lines = imap(cleaner_func, filtered_lines)
+    typed = imap(lambda splitline : typeify(splitline, nt_types), split_clean_lines)
+
+    return imap(nt._make, typed)
+
 
 def lineItemIterator(fh):
     '''Takes a file handle and returns a list of the split line'''
