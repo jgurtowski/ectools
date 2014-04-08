@@ -172,9 +172,10 @@ class FileOrStream:
             self.fh.close()
 
     
-def openerFromExtension(filename):
+def openerFromExtension(filename, default=None):
     '''Get an open function from a file's
     extension
+    default is the default opener, None by default
     returns:
        (open_func, filename_with_extension_removed)
     '''

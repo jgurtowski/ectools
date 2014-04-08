@@ -6,11 +6,13 @@ import os
 from collections import namedtuple
 
 from operator import attrgetter, itemgetter
+from functools import partial
 
-from itertools import imap, repeat
+from itertools import imap, repeat, starmap
 
 from seqio import iteratorFromExtension, seqlen
 from nucio import fileIterator, lineItemIterator, FileOrStream
+from nucio import openerFromExtension
 from misc import iterApply
 from stats import getBasicStats, extendedStatsToString, ExtendedStats
 from stats import NStar, LBig, Hist
@@ -60,11 +62,20 @@ if not len(args_remaining) >= 1 and not p_arg_map["stdin"] >=0:
 
 file_names = args_remaining
 
-#get a length iterator for each seq file
-lenits =  map(lambda it: iterApply(seqlen, it),
-              map(lambda fn, it: fileIterator(fn,it), 
-                  file_names,
-                  map(iteratorFromExtension,file_names)))
+
+#get openers (ie gzip or plain open)
+(openers,filenames_strip) = zip(*map(partial(openerFromExtension, default=open),
+                                     file_names))
+
+#get an iterator for each file's content
+contentIterators = map(iteratorFromExtension,filenames_strip)
+
+#setup the file handles
+fileIterators = starmap(fileIterator,zip(file_names,contentIterators,openers))
+
+#we only want the lengths
+lenits = map(partial(iterApply,seqlen), fileIterators)
+
 
 #build output files
 if p_arg_map["stdout"]:
