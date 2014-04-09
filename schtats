@@ -62,7 +62,6 @@ if not len(args_remaining) >= 1 and not p_arg_map["stdin"] >=0:
 
 file_names = args_remaining
 
-
 #get openers (ie gzip or plain open)
 (openers,filenames_strip) = zip(*map(partial(openerFromExtension, default=open),
                                      file_names))

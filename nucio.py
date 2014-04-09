@@ -185,4 +185,4 @@ def openerFromExtension(filename, default=None):
         import gzip
         return (gzip.open, ".".join(arr[:-1]))
 
-    return (None, filename)
+    return (default, filename)
