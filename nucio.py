@@ -56,9 +56,13 @@ def lineRecordIterator(fh, nt, nt_types, filter_func=trueFunc, delim=None, clean
     return imap(nt._make, typed)
 
 
-def lineItemIterator(fh):
-    '''Takes a file handle and returns a list of the split line'''
-    return imap(lambda x: x.split(), fh)
+def lineItemIterator(fh, filter_func=trueFunc):
+    '''Takes a file handle and returns a list of the split line
+    Will also take a filter function to filter out lines before they
+    are split
+    '''
+    filtered = ifilter( filter_func, fh)
+    return imap(str.split, filtered)
 
 def getNucmerAlignmentIterator(fh):
     '''Get nucmer alignments from show-coords output
@@ -76,6 +80,10 @@ def fileIterator(filename, itemIterator, open_func=open):
         for item in itemIterator(fh):
             yield item
 
+def recordToString( record, delim="\t" ):
+    '''Prints a generic named tuple combined by delim'''
+    fields = record._fields
+    return delim.join(imap(lambda x: str(getattr(record,x)), fields))
 
 def nucRecordToString(nuc_record):
     fields = nuc_record._fields
