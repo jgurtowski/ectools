@@ -61,32 +61,34 @@ if not len(args_remaining) >= 1 and not p_arg_map["stdin"] >=0:
     sys.exit(getHelpStr(description,arguments) + "\n")
 
 file_names = args_remaining
+seqfiles = []
 
-#get openers (ie gzip or plain open)
-(openers,filenames_strip) = zip(*map(partial(openerFromExtension, default=open),
-                                     file_names))
+if len(file_names) > 0:
+    #get openers (ie gzip or plain open)
+    (openers,filenames_strip) = zip(*map(partial(openerFromExtension, default=open),
+                                         file_names))
 
-#get an iterator for each file's content
-contentIterators = map(iteratorFromExtension,filenames_strip)
+    #get an iterator for each file's content
+    contentIterators = map(iteratorFromExtension,filenames_strip)
 
-#setup the file handles
-fileIterators = starmap(fileIterator,zip(file_names,contentIterators,openers))
+    #setup the file handles
+    fileIterators = starmap(fileIterator,zip(file_names,contentIterators,openers))
 
-#we only want the lengths
-lenits = map(partial(iterApply,seqlen), fileIterators)
+    #we only want the lengths
+    lenits = map(partial(iterApply,seqlen), fileIterators)
 
 
-#build output files
-if p_arg_map["stdout"]:
-    ofnames = repeat("stdout",len(file_names))
-else:
-    ofnames = imap(strAppend(".schtats"), file_names)
+    #build output files
+    if p_arg_map["stdout"]:
+        ofnames = repeat("stdout",len(file_names))
+    else:
+        ofnames = imap(strAppend(".schtats"), file_names)
 
-outfiles = map(lambda n : FileOrStream(n,"w"), ofnames)
+    outfiles = map(lambda n : FileOrStream(n,"w"), ofnames)
 
-#build the seqfiles
-seqfiles = map(SeqFile._make,
-               zip(file_names,lenits,outfiles))
+    #build the seqfiles
+    seqfiles = map(SeqFile._make,
+                   zip(file_names,lenits,outfiles))
 
 if p_arg_map["stdin"] >= 0:
     field = p_arg_map["stdin"]
