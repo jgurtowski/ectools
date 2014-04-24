@@ -49,7 +49,7 @@ if not len(args_remaining) >= 1:
 title = args_remaining[0]
 infiles = args_remaining[1:]
 
-cellnames = map(lambda f : f.split(".")[0].split("_")[0], infiles)
+cellnames = map(lambda f : "_".join(f.split(".")[0].split("_")[:2]), infiles)
 
 fit_gen = lambda filename : fileIterator(filename, lineItemIterator)
 file_iterators = map(fit_gen, infiles)

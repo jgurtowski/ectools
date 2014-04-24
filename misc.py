@@ -78,4 +78,5 @@ def defdef(default):
     return lambda x: x if bool(x) else default
 
 
-
+def identityFunc(x):
+    return x
