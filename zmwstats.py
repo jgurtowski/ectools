@@ -41,7 +41,6 @@ for cell in readers:
 
     read_type = imap(get_rt, allSeqZmws)
     read_type_counts = Counter(read_type)
-    print read_type_counts
     read_type_summary = rtg(read_type_counts)
 
     outdata = [movieName, good_zmws_cnt ,all_seq_zmws_cnt]
