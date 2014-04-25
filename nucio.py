@@ -28,12 +28,13 @@ DeltaRecord = namedtuple('DeltaRecord',
                          ["sname", "qname", "slen", "qlen", "alignments"])
 DeltaRecordTypes = [str, str, int, int, list]
 
+#legacy alias
 M4Record = namedtuple('M4Record',
                       ["qname", "tname", "score", "pctsimilarity", "qstrand",
                        "qstart", "qend", "qseqlength", "tstrand", "tstart" ,"tend",
                        "tseqlength", "mapqv"])
-M4RecordTypes = [str, str, float, float, int, int, int, int, int, int,int,int,int]
 
+M4RecordTypes = [str, str, float, float, int, int, int, int, int, int,int,int,int]
 
 def lineRecordIterator(fh, nt, nt_types, filter_func=trueFunc, delim=None, cleaner_func=None):
     '''Create an iterator with given file handle (fh)
