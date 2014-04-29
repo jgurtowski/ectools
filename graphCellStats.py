@@ -86,10 +86,11 @@ mpl.rc('ytick', labelsize=6)
 pp = PdfPages(p_arg_map["out"])
 
 colors = cycle("bgrcmyk")
-markers = "ooooooooxxxxxxxx++++++++" 
+markers = "ooooooooxxxxxxxx++++++++********ssssssssvvvvvvvv" 
 
 cellset = sorted(list(set(cellnames)))
 cmap = dict(zip(cellset, zip(colors,markers)))
+
 
 h = []
 for cellgroup in cellset:
@@ -97,7 +98,7 @@ for cellgroup in cellset:
     (alld, dgreater, cells) =  zip(*groupdata)    
     h.append(plt.scatter(alld, dgreater, marker=cmap[cellgroup][1], c=cmap[cellgroup][0]))
 
-plt.legend(h,cellset, loc='upper left', fontsize=8, scatterpoints=1)
+plt.legend(h,cellset, loc='upper left', fontsize=4, scatterpoints=1)
 
 if p_arg_map["counts"]:
     plt.xlabel("Log (Total Number of Reads)")

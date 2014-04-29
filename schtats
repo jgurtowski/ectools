@@ -15,7 +15,7 @@ from nucio import fileIterator, lineItemIterator, FileOrStream
 from nucio import openerFromExtension
 from misc import iterApply
 from stats import getBasicStats, extendedStatsToString, ExtendedStats
-from stats import NStar, LBig, Hist
+from stats import NStar, LBig, Hist, SpanningCoverage
 from args import parseArgs, getHelpStr, argrange, argflag, CLArgument
 from log import logger
 from strutil import strAppend
@@ -33,6 +33,10 @@ argument_list = (["genome", "gnm", int, None,"Genome Size for calculating n50 (i
                  ["nstar", "nstar", argrange, [10,25,50,75,90],("Calculate N* (ie N50,N75,N90 etc. "
                                                                 "Can be a range start:end:increment or comma "
                                                                 "separated list. Default: [10,25,50,75,90]")],
+                 ["spancov", "spancov", argrange, [], ("Calculate Spanning coverage. "
+                                                       "For given increments retrieve the coverage of "
+                                                       "reads that will span a region of that size. "
+                                                       "Can be comma separated list or range start:end:increment.")],
                  ["stdin", "stdin", int, -1, ("Read lengths from stdin rather "
                                                 "than from files, argument is the column from which to read "
                                                 "the lengths. O based. Ex. -stdin 1, for 2nd column of input")],
@@ -113,13 +117,17 @@ def calcStats(lengths):
     bigs =  map(lambda x: x(lengths),
                 LBig(p_arg_map["big"], genome_size))
 
+    #get spanning coverage
+    spanning_covs = map(lambda x : x(lengths),
+                       SpanningCoverage(p_arg_map["spancov"], genome_size))
+
     #get hist
     bins = p_arg_map["hist"]
     binsize = bins[1] - bins[0] if len(bins) > 1 else 0
     hist = map(lambda x : x(lengths),
                Hist(p_arg_map["hist"], binsize))
     
-    return ExtendedStats(basic,nstar,bigs,hist,genome_size)
+    return ExtendedStats(basic,nstar,bigs,hist,spanning_covs,genome_size)
 
 all_file_lengths = []
 for seqfile in seqfiles:

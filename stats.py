@@ -1,7 +1,8 @@
 
 from itertools import imap
 from collections import namedtuple
-from operator import add, attrgetter
+from operator import add, attrgetter, lt
+from functools import partial
 from math import sqrt, ceil
 from string import ljust
 from strutil import strAppend
@@ -18,6 +19,11 @@ BigIncrement = namedtuple('BigIncrement', ['increment',
                                            'bases',
                                            'coverage'])
 
+SpanCov = namedtuple('SpanCov', ['increment',
+                                 'count',
+                                 'bases',
+                                 'coverage'])
+
 HistBin = namedtuple('HistBin', ['bin',
                                  'count'])
 
@@ -26,8 +32,24 @@ ExtendedStats = namedtuple('ExtendedStats', ['basic',
                                              'nstar',
                                              'bigs',
                                              'hist',
+                                             'spancovs',
                                              'genome_size'])
-
+def SpanningCoverage(increments,genome_size =None):
+    '''Calculates the coverage of reads
+    that can cover an increment'''
+    
+    def _SC(inc):
+        def _N(lens):
+            cnt = 0
+            bases_greater = 0
+            for l in lens:
+                if l > inc:
+                    bases_greater += l-inc
+                    cnt += 1
+            cov = bases_greater / float(genome_size) if genome_size else None
+            return SpanCov(inc, cnt, bases_greater, cov)
+        return _N
+    return map(_SC, increments)
 
 def NStar(increments, genome_size):
     '''Retuns a list of functions that will
@@ -86,6 +108,10 @@ def Hist(increments, bin_size):
     return map(_Hist, increments)
 
 
+
+    
+
+
 def getBasicStats(lengths, genome_size = None):
     '''get stats from a list of lengths
     NOTE: lengths must be sorted in reverse
@@ -125,7 +151,16 @@ def nstarsToString(nstars):
     return "\n".join(map(lambda x: s.format(**dict(x._asdict())),
                          nstars))
     
+def spancovsToString(spancovs):
     
+    def spancovformat(spancov):
+        s = "#>{increment}={count} extra_bases>{increment}={bases} {cov}"
+        covstr = "cov={0:.2f}".format(spancov.coverage) if spancov.coverage else ""
+        d = dict(spancov._asdict().items() + [('cov',covstr)])
+        return s.format(**d)
+    
+    return "Spanning Coverage:\n" + "\n".join(map(spancovformat, spancovs))
+
 def bigsToString(bigs):
     '''List of bigs to make into a string'''
 
@@ -165,8 +200,8 @@ def extendedStatsToString(stats):
         fmt_strs += ["Assumed Genome Size: %d " % stats.genome_size]
     
     fmt_strs += map( lambda func, data : func(data),
-                    [basicStatsToString, nstarsToString, histToVertString, bigsToString],
-                    [stats.basic, stats.nstar, stats.hist, stats.bigs])
+                    [basicStatsToString, nstarsToString, histToVertString, bigsToString, spancovsToString],
+                    [stats.basic, stats.nstar, stats.hist, stats.bigs, stats.spancovs])
     
     #remove any empty ones
     fmt_strs = filter(bool, fmt_strs)
