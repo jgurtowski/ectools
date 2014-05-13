@@ -3,7 +3,7 @@
 import sys
 
 from operator import itemgetter,attrgetter
-from itertools import imap, starmap, repeat,izip
+from itertools import imap, starmap, repeat,izip,ifilter
 from pbcore.io import BasH5Reader
 from collections import Counter
 
@@ -24,22 +24,31 @@ get_prod = lambda o : getattr(o, "zmwMetric")("Productivity")
 zmwgetters = map(itemgetter, cell.allSequencingZmws)
 all_seq_zmws = list(starmap(apply,zip(zmwgetters, repeat([cell]))))
 zmw_prods = map(get_prod, all_seq_zmws)
-print Counter(zmw_prods)
 
-print filter( lambda (prod,l): prod == 2 , zip( zmw_prods, map(lambda z: len(z.read()), all_seq_zmws)))
 
-#print zmw_prods[:20]
+prod_lens = zip(zmw_prods, imap(lambda z: len(z.read()), all_seq_zmws))
+
+prod1_lens = map(itemgetter(1), ifilter(lambda (p,l): p==1, prod_lens))
+prod2_lens = map(itemgetter(1), ifilter(lambda (p,l): p==2, prod_lens))
+
 xy = map(attrgetter("holeXY"), all_seq_zmws)
 xyl = map(list,xy)
-print "length:" + str(len(xyl))
-colors="rgy"
 
+colors="rgy"
 (x,y) =  zip(*xyl)
 
 pp = PdfPages(infile.split(".")[0] + ".pdf")
 colormap = map(lambda c: colors[c], zmw_prods)
 plt.scatter(x, y, marker='o', s=3,lw=0, c=colormap, edgecolor=colormap)
-#plt.legend(["0","1","2"])
+
+plt.savefig(pp, format="pdf")
+
+plt.figure()
+
+plt.hist([prod1_lens,prod2_lens],bins=100,normed=True, histtype='bar', label=["prod1", "prod2"])
+plt.legend()
+plt.xlabel("Read Length")
+plt.ylabel("Frequency")
 
 plt.savefig(pp, format="pdf")
 

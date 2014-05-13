@@ -158,8 +158,9 @@ def spancovsToString(spancovs):
         covstr = "cov={0:.2f}".format(spancov.coverage) if spancov.coverage else ""
         d = dict(spancov._asdict().items() + [('cov',covstr)])
         return s.format(**d)
-    
-    return "Spanning Coverage:\n" + "\n".join(map(spancovformat, spancovs))
+
+    covs = map(spancovformat, spancovs)
+    return "Spanning Coverage:\n" + "\n".join(covs) if bool(covs) else ""
 
 def bigsToString(bigs):
     '''List of bigs to make into a string'''
