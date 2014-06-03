@@ -2,6 +2,7 @@
 from operator import itemgetter,attrgetter
 from collections import namedtuple
 from itertools import groupby, imap
+from functools import partial
 from nucio import fileIterator, lineRecordIterator
 from nucio import M4Record, M4RecordTypes
 from misc import identityFunc
@@ -35,11 +36,24 @@ def filterBestScore(alignments):
     return min(alignments,key=score_getter)
 
 def longestNonOverlapping(alignments):
-    '''Find the longest non overlapping alignments'''
+    '''
+    Gets the best non-overlapping alignment sections 
+    with respect to the query sequence
+    
+    Just greedily sorts the
+    alignments by length and adds them sequentially as long
+    as they don't overlap another alignment (with respect to the query)
+    '''
+
     align_len = lambda r : r.qend - r.qstart
     alignments.sort(key=align_len, reverse=True)
-    longest = alignments[0]
-    not_overlaps = lambda y : y.qend < longest.qstart or y.qstart > longest.qend
-    newset = [longest] + filter(not_overlaps, alignments)
+
+    newset = []
+    not_overlaps = lambda y,other : y.qend < other.qstart or y.qstart > other.qend    
+
+    for a in alignments:
+        if all(map(partial(not_overlaps, a), newset)):
+            newset.append(a)
+    
     return newset
     

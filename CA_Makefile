@@ -1,19 +1,19 @@
 
-BASENAME = simsga
-GENOME_SIZE = 120000000
+BASENAME = p2
+GENOME_SIZE = 4600000
 
 SHELL = /bin/bash
 
 CORRECTION_ROOT = /seq/schatz/a.thaliana/xiwang/james_workspace/nucmer-round-sim
 
-TIGLEN_BIN = /bluearc/data/schatz/mschatz/devel/bin/tig_length.pl 
-PBTOOLS_BIN = /bluearc/home/schatz/gurtowsk/workspace/pbtools
+TIGLEN_BIN = /sonas-hs/schatz/hpc/home/mschatz/build/bin/tig_length.pl 
+PBTOOLS_BIN = /sonas-hs/schatz/hpc/home/gurtowsk/workspace/pbtools
 
 JOIN_BIN = $(PBTOOLS_BIN)/join.py
 
-CA_BIN = /bluearc/home/schatz/gurtowsk/sources/wgs.svn/Linux-amd64/bin
-AMOS_BIN = /bluearc/home/schatz/gurtowsk/sources/amos/bin
-MUMMER_BIN = /bluearc/home/schatz/gurtowsk/sources/MUMmer
+CA_BIN = /sonas-hs/schatz/hpc/home/gurtowsk/sources/wgs.svn/Linux-amd64/bin
+AMOS_BIN = /sonas-hs/schatz/hpc/home/gurtowsk/sources/amos/bin
+MUMMER_BIN = /sonas-hs/schatz/hpc/home/gurtowsk/sources/MUMmer
 
 
 STATS_BIN = $(AMOS_BIN)/stats
