@@ -86,7 +86,7 @@ mpl.rc('ytick', labelsize=6)
 pp = PdfPages(p_arg_map["out"])
 
 colors = cycle("bgrcmyk")
-markers = "ooooooooxxxxxxxx++++++++********ssssssssvvvvvvvv" 
+markers = "oooooooxxxxxxxx++++++++********ssssssssvvvvvvvv" 
 
 cellset = sorted(list(set(cellnames)))
 cmap = dict(zip(cellset, zip(colors,markers)))

@@ -37,9 +37,11 @@ xyl = map(list,xy)
 colors="rgy"
 (x,y) =  zip(*xyl)
 
-pp = PdfPages(infile.split(".")[0] + ".pdf")
+cellname = infile.split(".")[0] 
+pp = PdfPages(cellname + ".pdf")
 colormap = map(lambda c: colors[c], zmw_prods)
 plt.scatter(x, y, marker='o', s=3,lw=0, c=colormap, edgecolor=colormap)
+plt.suptitle(cellname)
 
 plt.savefig(pp, format="pdf")
 
@@ -49,6 +51,7 @@ plt.hist([prod1_lens,prod2_lens],bins=100,normed=True, histtype='bar', label=["p
 plt.legend()
 plt.xlabel("Read Length")
 plt.ylabel("Frequency")
+plt.suptitle(cellname)
 
 plt.savefig(pp, format="pdf")
 
