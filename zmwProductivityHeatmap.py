@@ -44,6 +44,7 @@ plt.scatter(x, y, marker='o', s=3,lw=0, c=colormap, edgecolor=colormap)
 plt.suptitle(cellname)
 
 plt.savefig(pp, format="pdf")
+plt.legend()
 
 plt.figure()
 
