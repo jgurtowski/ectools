@@ -5,7 +5,7 @@ from itertools import takewhile
 
 #http://edwards.sdsu.edu/labsite/index.php/robs/396-reverse-complement-dna-sequences-in-python
 def reverse_complement(seq):
-    complements = string.maketrans('acgtACGTNn', 'tgcaTGCANn')
+    complements = string.maketrans('acgtACGTNn-', 'tgcaTGCANn-')
     return seq.translate(complements)[::-1]
 
 def accumulator(start_total):
