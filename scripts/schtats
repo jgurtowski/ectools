@@ -10,15 +10,15 @@ from functools import partial
 
 from itertools import imap, repeat, starmap
 
-from seqio import iteratorFromExtension, seqlen
-from nucio import fileIterator, lineItemIterator, FileOrStream
-from nucio import openerFromExtension
-from misc import iterApply
-from stats import getBasicStats, extendedStatsToString, ExtendedStats
-from stats import NStar, LBig, Hist, SpanningCoverage
-from args import parseArgs, getHelpStr, argrange, argflag, CLArgument
-from log import logger
-from strutil import strAppend
+from ectools.seqio import iteratorFromExtension, seqlen
+from ectools.nucio import fileIterator, lineItemIterator, FileOrStream
+from ectools.nucio import openerFromExtension
+from ectools.misc import iterApply
+from ectools.stats import getBasicStats, extendedStatsToString, ExtendedStats
+from ectools.stats import NStar, LBig, Hist, SpanningCoverage
+from ectools.args import parseArgs, getHelpStr, argrange, argflag, CLArgument
+from ectools.log import logger
+from ectools.strutil import strAppend
     
 #parameters
 description = ("Usage: schtats [options] file1.{fa,fq} [file2.{fa,fq} ..]\n\n"
