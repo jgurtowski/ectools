@@ -60,9 +60,26 @@ def getCoverageFromNucAlignments(alignments):
     '''Gets coverage from nucmer alignments'''
     it = iter(alignments)
     n = it.next()
-    cov = list(repeat(0,n.slen))
-    fillc(cov,n.sstart-1, n.send-1)
-    for g in alignments:
-        fillc(cov, g.sstart-1, g.send-1)
+
+    def nucAGetter():
+        yield (n.sstart-1, n.send-1)
+        for g in alignments:
+            yield (n.sstart-1, n.send-1)
+
+    return getCoverage( nucAGetter(), n.slen)
+
+
+def getCoverageFromAlignments(align_tuples, subject_length):
+    '''Gets coverage from alignment tuples 
+    Tuples just need to contain the subject start and end positions (0 offset)
+    '''
+    cov = list(repeat(0, subject_length))
+    for a in align_tuples:
+        (s,e) = a
+        if s > e:
+            t = s
+            s = e
+            e = t
+        fillc(cov, s, e)
     return cov
 
