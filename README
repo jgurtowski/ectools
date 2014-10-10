@@ -93,6 +93,17 @@ ECTOOLS_HOME=/path/to/this/directory
    Make sure you use OverlapBasedTrimming (it is on by default).
    
 
+11. (Optional)
+If SGE is not available in your compute environment, you can use
+GNU parallel to run ECTools. Although not the recommended method,
+as alignment can be very compute intensive, for small genomes 
+(bacteria), this method can be used on a single machine.
+
+For each of the directories created by the partition script (0001..000N),
+cd into the directory and run:
+
+   $>for j in {1..500}; do echo "SGE_TASK_ID=$j TMPDIR=/tmp ../correct.sh"; done  | \
+     parallel -j <# of compute cores>
 
 
 ###
